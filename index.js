@@ -86,6 +86,6 @@ const generateRTCToken = (req, resp) => {
 
 app.get("/rtc/:channel/:role/:tokenType/:uid", nocache, generateRTCToken);
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
