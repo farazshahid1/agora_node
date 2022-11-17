@@ -1,13 +1,18 @@
 const express = require("express");
 const { RtcTokenBuilder, RtcRole } = require("agora-access-token");
-const dotenv = require("dotenv").config();
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+require("dotenv").config();
 
 const PORT = 8080;
 
 const APP_ID = process.env.APP_ID;
 const APP_CERTIFICATE = process.env.APP_CERTIFICATE;
+const DB_URI = process.env.DB_CONNECTION;
 
 const app = express();
+
+app.use(bodyParser.json());
 
 const nocache = (req, resp, next) => {
   resp.header("Cache-Control", "private", "no-store", "must-revalidate");
@@ -86,6 +91,23 @@ const generateRTCToken = (req, resp) => {
 
 app.get("/rtc/:channel/:role/:tokenType/:uid", nocache, generateRTCToken);
 
+// Import routes
+const authRoutes = require("./routes/auth");
+
+app.use("/user", authRoutes);
+
+// Connect to be db
+mongoose.connect(DB_URI, () => console.log("Connected to DB!"));
+
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
+// const { MongoClient, ServerApiVersion } = require('mongodb');
+// const uri = "mongodb+srv://agora:stromeagora@cluster0.zekgm8y.mongodb.net/?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   client.close();
+// });
